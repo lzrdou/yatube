@@ -1,0 +1,35 @@
+{% extends 'base.html' %}
+{% block title %}
+    <title>Технологии</title>
+{% endblock %}
+{% block content %}
+<div class="row">
+  <h1>Вот что я умею</h1>
+  {% comment %}
+    Боковой блок со списком технологий
+    Займет всю ширину блока на мобильном
+    и 25% при размерах экрана ≥768px
+  {% endcomment %}
+  <aside class="col-12 col-md-3">
+    <ul class="list-group list-group-flush">
+      <li class="list-group-item">
+        Python
+      </li>
+      <li class="list-group-item">
+        Django
+      </li>
+    </ul>
+  </aside>
+  {% comment %}
+    Статья
+    Займет всю ширину блока на мобильном
+    и 75% при размерах экрана ≥768px
+  {% endcomment %}
+  <article class="col-12 col-md-9">
+    <p>
+        Тут могло быть много-много слов про технологии, но просто скажу
+        спасибо Джанго за то что не надо вручную писать запросы к БД :)
+    </p>
+  </article>
+</div>
+{% endblock %}
