@@ -55,9 +55,7 @@ def profile(request, username):
             following = True
         else:
             following = False
-        context += {
-            'following': following,
-        }
+        context['following'] = following
     return render(request, 'posts/profile.html', context)
 
 
