@@ -13,8 +13,7 @@ def pagination(request, post_list):
         post_list, settings.POSTS_PER_PAGE
     )
     page_number = request.GET.get('page')
-    page_obj = paginator.get_page(page_number)
-    return page_obj
+    return paginator.get_page(page_number)
 
 
 @cache_page(20, key_prefix='index_page')
@@ -43,22 +42,20 @@ def profile(request, username):
     post_list = author.posts.all()
     post_num = author.posts.all().count()
     page_obj = pagination(request, post_list)
-    context = {
-        'author': author,
-        'page_obj': page_obj,
-        'post_num': post_num,
-    }
     if request.user.is_authenticated:
         if Follow.objects.filter(
                 user=request.user,
                 author=author
         ).exists():
-            context = {
-                'author': author,
-                'page_obj': page_obj,
-                'post_num': post_num,
-                'following': True,
-            }
+            following = True
+        else:
+            following = False
+    context = {
+        'author': author,
+        'page_obj': page_obj,
+        'post_num': post_num,
+        'following': following,
+    }
     return render(request, 'posts/profile.html', context)
 
 
@@ -126,8 +123,7 @@ def add_comment(request, post_id):
 @login_required
 def follow_index(request):
     posts = Post.objects.filter(author__following__user=request.user).all()
-    post_list = posts.all()
-    page_obj = pagination(request, post_list)
+    page_obj = pagination(request, posts.all())
     context = {
         'page_obj': page_obj,
     }
@@ -143,7 +139,6 @@ def profile_follow(request, username):
             user=user,
             author=author
         )
-        return redirect('posts:profile', username)
     return redirect('posts:profile', username)
 
 

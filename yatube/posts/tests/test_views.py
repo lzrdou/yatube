@@ -162,7 +162,7 @@ class PostsURLTests(TestCase):
         response = self.guest_client.get(reverse('posts:index'))
         self.assertNotIn(self.post1.text.encode('utf-8'), response.content)
 
-    def test_auth_user_follow_unfollow(self):
+    def test_auth_user_follow(self):
         self.authorized_client.get(
             reverse(
                 'posts:profile_follow',
@@ -174,6 +174,12 @@ class PostsURLTests(TestCase):
                 user=self.user1,
                 author=self.user2
             ).exists()
+        )
+
+    def test_auth_user_unfollow(self):
+        Follow.objects.create(
+            user=self.user1,
+            author=self.user2
         )
         self.authorized_client.get(
             reverse(
@@ -188,7 +194,7 @@ class PostsURLTests(TestCase):
             ).exists()
         )
 
-    def test_follow_index(self):
+    def test_follow_index_when_following(self):
         self.authorized_client.get(
             reverse(
                 'posts:profile_follow',
@@ -199,6 +205,12 @@ class PostsURLTests(TestCase):
             reverse('posts:follow_index')
         )
         self.assertIn(self.post2, response.context['page_obj'])
+
+    def test_follow_index_when_not_following(self):
+        Follow.objects.create(
+            user=self.user1,
+            author=self.user2
+        )
         authorized_client = Client()
         authorized_client.force_login(self.user2)
         response = authorized_client.get(
@@ -209,10 +221,9 @@ class PostsURLTests(TestCase):
 
 def num_of_obj_on_page(obj_qnt, obj_per_page, page_num):
     if obj_qnt / obj_per_page >= page_num:
-        expected_obj_qnt = obj_per_page
+        return obj_per_page
     else:
-        expected_obj_qnt = obj_qnt - obj_per_page
-    return expected_obj_qnt
+        return obj_qnt - obj_per_page
 
 
 class PaginatorViewsTest(TestCase):

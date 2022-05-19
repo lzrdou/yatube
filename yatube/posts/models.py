@@ -1,6 +1,7 @@
-from core.models import CreatedModel
 from django.contrib.auth import get_user_model
 from django.db import models
+
+from core.models import CreatedModel
 
 User = get_user_model()
 
@@ -12,6 +13,10 @@ class Group(models.Model):
 
     def __str__(self):
         return self.title
+
+    class Meta:
+        verbose_name = 'Группа'
+        verbose_name_plural = 'Группы'
 
 
 class Post(CreatedModel):
@@ -65,6 +70,10 @@ class Comment(CreatedModel):
         help_text='Текст нового комментария'
     )
 
+    class Meta:
+        verbose_name = 'Комментарий'
+        verbose_name_plural = 'Комментарии'
+
 
 class Follow(models.Model):
     user = models.ForeignKey(
@@ -77,3 +86,13 @@ class Follow(models.Model):
         on_delete=models.CASCADE,
         related_name='following'
     )
+
+    class Meta:
+        verbose_name = 'Подписка'
+        verbose_name_plural = 'Подписки'
+        constraints = [
+            models.UniqueConstraint(
+                fields=['user', 'author'],
+                name='unique_follow'
+            )
+        ]

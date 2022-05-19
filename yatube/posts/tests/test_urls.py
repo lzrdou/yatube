@@ -55,9 +55,29 @@ class PostsURLTests(TestCase):
         response = self.authorized_client.get('/posts/1/edit/')
         self.assertEqual(response.status_code, HTTPStatus.OK.value)
 
+    def test_follow_index_page(self):
+        self.authorized_client.get(f'/profile/{self.user2}/follow/')
+        response = self.authorized_client.get('/follow/')
+        self.assertEqual(response.status_code, HTTPStatus.OK.value)
+
     def test_edit_post_not_author(self):
         response = self.authorized_client.get('/posts/2/edit/', follow=True)
         self.assertRedirects(response, '/posts/2/')
+
+    def test_comment(self):
+        response = self.authorized_client.get('/posts/1/comment/')
+        self.assertRedirects(response, '/posts/1/')
+
+    def test_follow(self):
+        response = self.authorized_client.get(f'/profile/{self.user2}/follow/')
+        self.assertRedirects(response, f'/profile/{self.user2}/')
+
+    def test_unfollow(self):
+        self.authorized_client.get(f'/profile/{self.user2}/follow/')
+        response = self.authorized_client.get(
+            f'/profile/{self.user2}/unfollow/'
+        )
+        self.assertRedirects(response, f'/profile/{self.user2}/')
 
     def test_urls_uses_correct_templates(self):
         templates_url_names = {
@@ -67,8 +87,9 @@ class PostsURLTests(TestCase):
             f'/posts/{self.post1.pk}/': 'posts/post_detail.html',
             f'/posts/{self.post1.pk}/edit/': 'posts/create_post.html',
             '/create/': 'posts/create_post.html',
+            '/follow/': 'posts/follow.html',
         }
         for url, template in templates_url_names.items():
             with self.subTest(url=url):
                 response = self.authorized_client.get(url)
-                self.assertTemplateUsed(response, template, f'{template}')
+                self.assertTemplateUsed(response, template, f'{url}')
