@@ -163,20 +163,20 @@ class PostsURLTests(TestCase):
         self.assertNotIn(self.post1.text.encode('utf-8'), response.content)
 
     def test_auth_user_follow(self):
+        follow_count = Follow.objects.count()
         self.authorized_client.get(
             reverse(
                 'posts:profile_follow',
                 kwargs={'username': self.user2.username}
             )
         )
-        self.assertTrue(
-            Follow.objects.filter(
-                user=self.user1,
-                author=self.user2
-            ).exists()
-        )
+        self.assertEqual(Follow.objects.count(), follow_count + 1)
+        follow_obj = Follow.objects.all()[0]
+        self.assertEqual(follow_obj.user, self.user1)
+        self.assertEqual(follow_obj.author, self.user2)
 
     def test_auth_user_unfollow(self):
+        follow_count = Follow.objects.count()
         Follow.objects.create(
             user=self.user1,
             author=self.user2
@@ -187,6 +187,7 @@ class PostsURLTests(TestCase):
                 kwargs={'username': self.user2.username}
             )
         )
+        self.assertEqual(Follow.objects.count(), follow_count)
         self.assertFalse(
             Follow.objects.filter(
                 user=self.user1,
@@ -222,8 +223,7 @@ class PostsURLTests(TestCase):
 def num_of_obj_on_page(obj_qnt, obj_per_page, page_num):
     if obj_qnt / obj_per_page >= page_num:
         return obj_per_page
-    else:
-        return obj_qnt - obj_per_page
+    return obj_qnt - obj_per_page
 
 
 class PaginatorViewsTest(TestCase):

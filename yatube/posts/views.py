@@ -42,20 +42,20 @@ def profile(request, username):
     post_list = author.posts.all()
     post_num = author.posts.all().count()
     page_obj = pagination(request, post_list)
+    following = (
+            request.user.is_authenticated
+            and
+            Follow.objects.filter(
+                user=request.user,
+                author=author
+            ).exists()
+    )
     context = {
         'author': author,
         'page_obj': page_obj,
         'post_num': post_num,
+        'following': following,
     }
-    if request.user.is_authenticated:
-        if Follow.objects.filter(
-                user=request.user,
-                author=author
-        ).exists():
-            following = True
-        else:
-            following = False
-        context['following'] = following
     return render(request, 'posts/profile.html', context)
 
 
