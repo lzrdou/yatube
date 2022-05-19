@@ -42,6 +42,11 @@ def profile(request, username):
     post_list = author.posts.all()
     post_num = author.posts.all().count()
     page_obj = pagination(request, post_list)
+    context = {
+        'author': author,
+        'page_obj': page_obj,
+        'post_num': post_num,
+    }
     if request.user.is_authenticated:
         if Follow.objects.filter(
                 user=request.user,
@@ -50,12 +55,9 @@ def profile(request, username):
             following = True
         else:
             following = False
-    context = {
-        'author': author,
-        'page_obj': page_obj,
-        'post_num': post_num,
-        'following': following,
-    }
+        context += {
+            'following': following,
+        }
     return render(request, 'posts/profile.html', context)
 
 
